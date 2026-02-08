@@ -70,6 +70,22 @@ class Command {
     );
 
     commands.registerCommand(
+      Commands.EnableCpuTemp,
+      () => {
+        setting.enableModule('cpuTemp');
+      },
+      this
+    );
+
+    commands.registerCommand(
+      Commands.DisableCpuTemp,
+      () => {
+        setting.disableModule('cpuTemp');
+      },
+      this
+    );
+
+    commands.registerCommand(
       Commands.EnableLoadavg,
       () => {
         setting.enableModule('loadavg');

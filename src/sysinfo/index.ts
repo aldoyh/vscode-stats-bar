@@ -29,6 +29,15 @@ export async function getCpuLoad() {
   } catch (err) {}
 }
 
+export async function getCpuTemperature() {
+  try {
+    const res = await si.cpuTemperature();
+    if (res && res.main && res.main > 0) {
+      return res.main;
+    }
+  } catch (err) {}
+}
+
 export async function getLoadavg() {
   try {
     const res = os.loadavg();
@@ -114,6 +123,7 @@ export async function getBatteryStatus() {
 
 export const sysinfoData = {
   cpuLoad: getCpuLoad,
+  cpuTemp: getCpuTemperature,
   loadavg: getLoadavg,
   networkSpeed: getNetworkSpeed,
   memoUsage: getMemoryUsage,
@@ -132,6 +142,7 @@ export type StatsModule = keyof typeof sysinfoData;
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export const StatsModuleNameMap: { [key in StatsModule]: string } = {
   cpuLoad: 'CpuLoad',
+  cpuTemp: 'CPU Temperature',
   loadavg: 'Loadavg',
   networkSpeed: 'NetworkSpeed',
   memoUsage: 'MemoryUsage',

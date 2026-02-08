@@ -16,7 +16,7 @@ class Setting {
   allModules = AllSysModules;
   default = {
     modules: ['cpuLoad', 'networkSpeed', 'memoUsage'] as StatsModule[],
-    refreshInterval: 1800,
+    refreshInterval: 2000, // Increased from 1800ms to 2000ms for better performance
     priority: -1
   };
 

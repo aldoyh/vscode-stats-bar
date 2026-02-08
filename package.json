@@ -1,7 +1,7 @@
 {
   "name": "stats-bar",
   "displayName": "Stats Bar",
-  "description": "A status bar to show system stats",
+  "description": "A comprehensive status bar extension to show system stats including CPU, memory, network, disk, battery, and more with color-coded warnings",
   "version": "0.6.0",
   "publisher": "njzy",
   "engines": {
@@ -60,12 +60,13 @@
               "memoUsage"
             ],
             "minItems": 0,
-            "maxItems": 7,
+            "maxItems": 8,
             "uniqueItems": true,
             "items": {
               "type": "string",
               "enum": [
                 "cpuLoad",
+                "cpuTemp",
                 "loadavg",
                 "networkSpeed",
                 "memoUsage",
@@ -79,8 +80,8 @@
           "statsBar.refreshInterval": {
             "type": "number",
             "scope": "machine-overridable",
-            "default": 1800,
-            "description": "Specifies the refresh interval time (ms) to update all modules",
+            "default": 2000,
+            "description": "Specifies the refresh interval time (ms) to update all modules. Lower values increase system load.",
             "minimum": 1000
           },
           "statsBar.priority": {
@@ -94,6 +95,12 @@
             "scope": "machine-overridable",
             "default": "$(pulse) ${percent}%",
             "markdownDescription": "You can use these variables to custom display format: `${percent}` or visit [doc](https://github.com/njzydark/vscode-stats-bar#display-format) to see detail (e.g. how use icon)"
+          },
+          "statsBar.cpuTemp.format": {
+            "type": "string",
+            "scope": "machine-overridable",
+            "default": "$(flame) ${temp}°C",
+            "markdownDescription": "You can use these variables to custom display format: `${temp}` or visit [doc](https://github.com/njzydark/vscode-stats-bar#display-format) to see detail (e.g. how use icon)"
           },
           "statsBar.loadavg.format": {
             "type": "string",
@@ -154,6 +161,14 @@
       {
         "command": "StatsBar.DisableCpuLoad",
         "title": "StatsBar: Disable Cpu Load"
+      },
+      {
+        "command": "StatsBar.EnableCpuTemp",
+        "title": "StatsBar: Enable CPU Temperature"
+      },
+      {
+        "command": "StatsBar.DisableCpuTemp",
+        "title": "StatsBar: Disable CPU Temperature"
       },
       {
         "command": "StatsBar.EnableNetworkSpeed",
@@ -221,6 +236,14 @@
         {
           "command": "StatsBar.DisableCpuLoad",
           "when": "statsBar.cpuLoad"
+        },
+        {
+          "command": "StatsBar.EnableCpuTemp",
+          "when": "!statsBar.cpuTemp"
+        },
+        {
+          "command": "StatsBar.DisableCpuTemp",
+          "when": "statsBar.cpuTemp"
         },
         {
           "command": "StatsBar.EnableNetworkSpeed",

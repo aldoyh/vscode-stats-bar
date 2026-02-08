@@ -62,16 +62,37 @@ class StatsBar {
       curStatusItem.command = undefined; // Clear any previous commands
 
       // Color coding for warnings
-      if (data.module === 'cpuLoad' || data.module === 'memoUsage' || data.module === 'diskUsage') {
-        const percentMatch = data.text.match(/(\d+)%/);
-        if (percentMatch) {
-          const percent = parseInt(percentMatch[1]);
-          if (percent >= 90) {
-            curStatusItem.backgroundColor = { id: 'statusBarItem.errorBackground' };
-          } else if (percent >= 75) {
-            curStatusItem.backgroundColor = { id: 'statusBarItem.warningBackground' };
-          } else {
-            curStatusItem.backgroundColor = undefined;
+      if (
+        data.module === 'cpuLoad' ||
+        data.module === 'memoUsage' ||
+        data.module === 'diskUsage' ||
+        data.module === 'cpuTemp'
+      ) {
+        if (data.module === 'cpuTemp') {
+          // CPU temperature color coding
+          const tempMatch = data.text.match(/(\d+\.?\d*)/);
+          if (tempMatch) {
+            const temp = parseFloat(tempMatch[1]);
+            if (temp >= 80) {
+              curStatusItem.backgroundColor = { id: 'statusBarItem.errorBackground' };
+            } else if (temp >= 70) {
+              curStatusItem.backgroundColor = { id: 'statusBarItem.warningBackground' };
+            } else {
+              curStatusItem.backgroundColor = undefined;
+            }
+          }
+        } else {
+          // Percentage-based color coding
+          const percentMatch = data.text.match(/(\d+)%/);
+          if (percentMatch) {
+            const percent = parseInt(percentMatch[1]);
+            if (percent >= 90) {
+              curStatusItem.backgroundColor = { id: 'statusBarItem.errorBackground' };
+            } else if (percent >= 75) {
+              curStatusItem.backgroundColor = { id: 'statusBarItem.warningBackground' };
+            } else {
+              curStatusItem.backgroundColor = undefined;
+            }
           }
         }
       }
@@ -95,6 +116,16 @@ class StatsBar {
         };
         formatedData.text = formatByDict(setting.cfg?.get(ConfigurationKeys.CpuLoadFormat), dict);
         formatedData.tooltip = `CPU Load: ${percent}%`;
+      }
+    } else if (module === 'cpuTemp') {
+      const res = rawRes as Await<SysinfoData['cpuTemp']>;
+      if (res && res > 0) {
+        const temp = res.toFixed(1);
+        const dict = {
+          temp
+        };
+        formatedData.text = formatByDict(setting.cfg?.get(ConfigurationKeys.CpuTempFormat), dict);
+        formatedData.tooltip = `CPU Temperature: ${temp}°C`;
       }
     } else if (module === 'loadavg') {
       const res = rawRes as Await<SysinfoData['loadavg']>;

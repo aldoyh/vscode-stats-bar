@@ -6,8 +6,8 @@ All notable changes to the stats bar extension will be documented in this file.
 
 ### Added
 
-- **New Modules**: Disk usage monitoring and Battery status for laptops
-- **Color Coding**: Visual warnings for high CPU (>75% yellow, >90% red), memory, and disk usage
+- **New Modules**: Disk usage monitoring, Battery status for laptops, and CPU Temperature monitoring
+- **Color Coding**: Visual warnings for high CPU (>75% yellow, >90% red), CPU temperature (>70°C yellow, >80°C red), memory, and disk usage
 - **Enhanced Tooltips**: More detailed information in hover tooltips for all modules
 - **Better Error Handling**: Improved error handling with console logging for debugging
 - **Type Safety**: Enhanced TypeScript type safety throughout the codebase
@@ -19,7 +19,7 @@ All notable changes to the stats bar extension will be documented in this file.
   - TypeScript updated from 4.3.2 to 4.9.5
   - Prettier updated from 2.3.2 to 2.8.8
 - **Improved Code Quality**: Fixed linter warnings and improved code consistency
-- **Maximum Modules**: Increased from 5 to 7 to accommodate new features
+- **Maximum Modules**: Increased from 5 to 8 to accommodate new features
 
 ### Fixed
 

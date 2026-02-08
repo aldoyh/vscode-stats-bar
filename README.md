@@ -12,11 +12,11 @@ A vscode extension to show system stats in status bar
 
 ## Features
 
-- Support show cpu load, loadavg, network speed, memory usage, uptime, disk usage and battery status
+- Support show cpu load, cpu temperature, loadavg, network speed, memory usage, uptime, disk usage and battery status
 - Support custom display format, order and priority
 - Support copy ip to clipboard
 - Support change loacation and refresh interval
-- Color-coded warnings for high CPU, memory, and disk usage
+- Color-coded warnings for high CPU, CPU temperature, memory, and disk usage
 - Enhanced tooltips with detailed information
 
 ## Extension Settings
@@ -30,6 +30,10 @@ You can use `$(icon-name)` to show icon, visit this site [https://microsoft.gith
 ### Cpu Load
 
 - ${percent}
+
+### CPU Temperature
+
+- ${temp}
 
 ### Loadavg
 
