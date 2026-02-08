@@ -2,6 +2,30 @@
 
 All notable changes to the stats bar extension will be documented in this file.
 
+## [0.6.0] - 2026-02-08
+
+### Added
+
+- **New Modules**: Disk usage monitoring, Battery status for laptops, and CPU Temperature monitoring
+- **Color Coding**: Visual warnings for high CPU (>75% yellow, >90% red), CPU temperature (>70°C yellow, >80°C red), memory, and disk usage
+- **Enhanced Tooltips**: More detailed information in hover tooltips for all modules
+- **Better Error Handling**: Improved error handling with console logging for debugging
+- **Type Safety**: Enhanced TypeScript type safety throughout the codebase
+
+### Changed
+
+- **Updated Dependencies**: 
+  - systeminformation updated from 5.12.3 to 5.30.7 (latest stable)
+  - TypeScript updated from 4.3.2 to 4.9.5
+  - Prettier updated from 2.3.2 to 2.8.8
+- **Improved Code Quality**: Fixed linter warnings and improved code consistency
+- **Maximum Modules**: Increased from 5 to 8 to accommodate new features
+
+### Fixed
+
+- Fixed type safety issues in utility functions
+- Removed unused parameters to eliminate warnings
+
 ## [0.5.2] - 2022-08-07
 
 ### Fixed

@@ -29,6 +29,15 @@ export async function getCpuLoad() {
   } catch (err) {}
 }
 
+export async function getCpuTemperature() {
+  try {
+    const res = await si.cpuTemperature();
+    if (res && res.main && res.main > 0) {
+      return res.main;
+    }
+  } catch (err) {}
+}
+
 export async function getLoadavg() {
   try {
     const res = os.loadavg();
@@ -83,12 +92,44 @@ export async function getMemoryUsage() {
   } catch (err) {}
 }
 
+export async function getDiskUsage() {
+  try {
+    const res = await si.fsSize();
+    if (res && res.length > 0) {
+      // Get primary disk (usually the first one or the one mounted at /)
+      const primaryDisk = res.find(disk => disk.mount === '/' || disk.mount === 'C:\\') || res[0];
+      return {
+        size: primaryDisk.size,
+        used: primaryDisk.used,
+        available: primaryDisk.available,
+        use: primaryDisk.use,
+        mount: primaryDisk.mount
+      };
+    }
+  } catch (err) {}
+}
+
+export async function getBatteryStatus() {
+  try {
+    const res = await si.battery();
+    return {
+      hasBattery: res.hasBattery,
+      isCharging: res.isCharging,
+      percent: res.percent,
+      timeRemaining: res.timeRemaining
+    };
+  } catch (err) {}
+}
+
 export const sysinfoData = {
   cpuLoad: getCpuLoad,
+  cpuTemp: getCpuTemperature,
   loadavg: getLoadavg,
   networkSpeed: getNetworkSpeed,
   memoUsage: getMemoryUsage,
-  uptime: getUpTime
+  uptime: getUpTime,
+  diskUsage: getDiskUsage,
+  battery: getBatteryStatus
 };
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -101,8 +142,11 @@ export type StatsModule = keyof typeof sysinfoData;
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export const StatsModuleNameMap: { [key in StatsModule]: string } = {
   cpuLoad: 'CpuLoad',
+  cpuTemp: 'CPU Temperature',
   loadavg: 'Loadavg',
   networkSpeed: 'NetworkSpeed',
   memoUsage: 'MemoryUsage',
-  uptime: 'Uptime'
+  uptime: 'Uptime',
+  diskUsage: 'Disk Usage',
+  battery: 'Battery'
 };

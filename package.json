@@ -1,8 +1,8 @@
 {
   "name": "stats-bar",
   "displayName": "Stats Bar",
-  "description": "A status bar to show system stats",
-  "version": "0.5.2",
+  "description": "A comprehensive status bar extension to show system stats including CPU, memory, network, disk, battery, and more with color-coded warnings",
+  "version": "0.6.0",
   "publisher": "njzy",
   "engines": {
     "vscode": "^1.50.0"
@@ -16,7 +16,10 @@
     "cpu load",
     "memory usage",
     "uptime",
-    "monitor"
+    "disk usage",
+    "battery",
+    "monitor",
+    "performance"
   ],
   "icon": "images/icon.png",
   "repository": "https://github.com/njzydark/vscode-stats-bar.git",
@@ -57,16 +60,19 @@
               "memoUsage"
             ],
             "minItems": 0,
-            "maxItems": 5,
+            "maxItems": 8,
             "uniqueItems": true,
             "items": {
               "type": "string",
               "enum": [
                 "cpuLoad",
+                "cpuTemp",
                 "loadavg",
                 "networkSpeed",
                 "memoUsage",
-                "uptime"
+                "uptime",
+                "diskUsage",
+                "battery"
               ]
             },
             "markdownDescription": "Control the modules to be enabled and the display order (You can drag the item to control the order)"
@@ -74,8 +80,8 @@
           "statsBar.refreshInterval": {
             "type": "number",
             "scope": "machine-overridable",
-            "default": 1800,
-            "description": "Specifies the refresh interval time (ms) to update all modules",
+            "default": 2000,
+            "description": "Specifies the refresh interval time (ms) to update all modules. Lower values increase system load.",
             "minimum": 1000
           },
           "statsBar.priority": {
@@ -89,6 +95,12 @@
             "scope": "machine-overridable",
             "default": "$(pulse) ${percent}%",
             "markdownDescription": "You can use these variables to custom display format: `${percent}` or visit [doc](https://github.com/njzydark/vscode-stats-bar#display-format) to see detail (e.g. how use icon)"
+          },
+          "statsBar.cpuTemp.format": {
+            "type": "string",
+            "scope": "machine-overridable",
+            "default": "$(flame) ${temp}°C",
+            "markdownDescription": "You can use these variables to custom display format: `${temp}` or visit [doc](https://github.com/njzydark/vscode-stats-bar#display-format) to see detail (e.g. how use icon)"
           },
           "statsBar.loadavg.format": {
             "type": "string",
@@ -113,6 +125,18 @@
             "scope": "machine-overridable",
             "default": "${days}d, ${hours}h, ${minutes}m",
             "markdownDescription": "You can use these variables to custom display format: `${days}` `${hours}` `${minutes}` or visit [doc](https://github.com/njzydark/vscode-stats-bar#display-format) to see detail (e.g. how use icon)"
+          },
+          "statsBar.diskUsage.format": {
+            "type": "string",
+            "scope": "machine-overridable",
+            "default": "$(database) ${used}/${total} ${unit}, ${percent}%",
+            "markdownDescription": "You can use these variables to custom display format: `${used}` `${total}` `${available}` `${unit}` `${percent}` `${mount}` or visit [doc](https://github.com/njzydark/vscode-stats-bar#display-format) to see detail (e.g. how use icon)"
+          },
+          "statsBar.battery.format": {
+            "type": "string",
+            "scope": "machine-overridable",
+            "default": "$(plug) ${percent}% ${charging}",
+            "markdownDescription": "You can use these variables to custom display format: `${percent}` `${charging}` `${time}` or visit [doc](https://github.com/njzydark/vscode-stats-bar#display-format) to see detail (e.g. how use icon)"
           }
         }
       }
@@ -137,6 +161,14 @@
       {
         "command": "StatsBar.DisableCpuLoad",
         "title": "StatsBar: Disable Cpu Load"
+      },
+      {
+        "command": "StatsBar.EnableCpuTemp",
+        "title": "StatsBar: Enable CPU Temperature"
+      },
+      {
+        "command": "StatsBar.DisableCpuTemp",
+        "title": "StatsBar: Disable CPU Temperature"
       },
       {
         "command": "StatsBar.EnableNetworkSpeed",
@@ -169,6 +201,22 @@
       {
         "command": "StatsBar.DisableUptime",
         "title": "StatsBar: Disable Uptime"
+      },
+      {
+        "command": "StatsBar.EnableDiskUsage",
+        "title": "StatsBar: Enable Disk Usage"
+      },
+      {
+        "command": "StatsBar.DisableDiskUsage",
+        "title": "StatsBar: Disable Disk Usage"
+      },
+      {
+        "command": "StatsBar.EnableBattery",
+        "title": "StatsBar: Enable Battery"
+      },
+      {
+        "command": "StatsBar.DisableBattery",
+        "title": "StatsBar: Disable Battery"
       }
     ],
     "menus": {
@@ -188,6 +236,14 @@
         {
           "command": "StatsBar.DisableCpuLoad",
           "when": "statsBar.cpuLoad"
+        },
+        {
+          "command": "StatsBar.EnableCpuTemp",
+          "when": "!statsBar.cpuTemp"
+        },
+        {
+          "command": "StatsBar.DisableCpuTemp",
+          "when": "statsBar.cpuTemp"
         },
         {
           "command": "StatsBar.EnableNetworkSpeed",
@@ -220,6 +276,22 @@
         {
           "command": "StatsBar.DisableUptime",
           "when": "statsBar.uptime"
+        },
+        {
+          "command": "StatsBar.EnableDiskUsage",
+          "when": "!statsBar.diskUsage"
+        },
+        {
+          "command": "StatsBar.DisableDiskUsage",
+          "when": "statsBar.diskUsage"
+        },
+        {
+          "command": "StatsBar.EnableBattery",
+          "when": "!statsBar.battery"
+        },
+        {
+          "command": "StatsBar.DisableBattery",
+          "when": "statsBar.battery"
         }
       ]
     }
@@ -259,12 +331,12 @@
     "glob": "^7.1.7",
     "husky": "^7.0.2",
     "mocha": "^8.4.0",
-    "prettier": "^2.3.2",
-    "typescript": "^4.3.2",
+    "prettier": "^2.8.8",
+    "typescript": "^4.9.5",
     "vscode-test": "^1.5.2"
   },
   "dependencies": {
-    "systeminformation": "5.12.3"
+    "systeminformation": "5.30.7"
   },
   "bugs": {
     "url": "https://github.com/njzydark/vscode-stats-bar/issues"

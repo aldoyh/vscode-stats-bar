@@ -59,12 +59,12 @@ export function formatTimes(data: number) {
   return formatRes;
 }
 
-export function formatByDict<T extends { [prop: string]: any }>(raw = '', dict: T): string {
+export function formatByDict<T extends { [prop: string]: string | number }>(raw = '', dict: T): string {
   let res = raw;
   raw.match(/\$\{[^{}]*\}/g)?.forEach(item => {
     const key = item.replace(/(\$\{)|(\})/g, '');
     if (key in dict) {
-      res = res.replace(item, dict[key]);
+      res = res.replace(item, String(dict[key]));
     }
   });
 

@@ -4,7 +4,7 @@ import { setting } from './setting';
 import { getIP } from './sysinfo';
 
 class Command {
-  init(context: ExtensionContext) {
+  init(_context: ExtensionContext) {
     this.registerCommand();
     this.changeContext();
   }
@@ -70,6 +70,22 @@ class Command {
     );
 
     commands.registerCommand(
+      Commands.EnableCpuTemp,
+      () => {
+        setting.enableModule('cpuTemp');
+      },
+      this
+    );
+
+    commands.registerCommand(
+      Commands.DisableCpuTemp,
+      () => {
+        setting.disableModule('cpuTemp');
+      },
+      this
+    );
+
+    commands.registerCommand(
       Commands.EnableLoadavg,
       () => {
         setting.enableModule('loadavg');
@@ -129,6 +145,38 @@ class Command {
       Commands.DisableUptime,
       () => {
         setting.disableModule('uptime');
+      },
+      this
+    );
+
+    commands.registerCommand(
+      Commands.EnableDiskUsage,
+      () => {
+        setting.enableModule('diskUsage');
+      },
+      this
+    );
+
+    commands.registerCommand(
+      Commands.DisableDiskUsage,
+      () => {
+        setting.disableModule('diskUsage');
+      },
+      this
+    );
+
+    commands.registerCommand(
+      Commands.EnableBattery,
+      () => {
+        setting.enableModule('battery');
+      },
+      this
+    );
+
+    commands.registerCommand(
+      Commands.DisableBattery,
+      () => {
+        setting.disableModule('battery');
       },
       this
     );
