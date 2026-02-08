@@ -46,14 +46,36 @@ class StatsBar {
 
   private async getSysInfo() {
     const promises = setting.curModules.map(async module => {
-      const res = await sysinfoData[module]();
-      return this.formatRes(module, res) || '-';
+      try {
+        const res = await sysinfoData[module]();
+        return this.formatRes(module, res) || { module, text: '-', tooltip: StatsModuleNameMap[module] };
+      } catch (error) {
+        console.error(`Error getting ${module} info:`, error);
+        return { module, text: '-', tooltip: `${StatsModuleNameMap[module]} (Error)` };
+      }
     });
     const res = await Promise.all(promises);
     res.forEach((data, index) => {
       const curStatusItem = this.statusItems[index];
       curStatusItem.text = data.text;
       curStatusItem.tooltip = data.tooltip || StatsModuleNameMap[data.module];
+      curStatusItem.command = undefined; // Clear any previous commands
+
+      // Color coding for warnings
+      if (data.module === 'cpuLoad' || data.module === 'memoUsage' || data.module === 'diskUsage') {
+        const percentMatch = data.text.match(/(\d+)%/);
+        if (percentMatch) {
+          const percent = parseInt(percentMatch[1]);
+          if (percent >= 90) {
+            curStatusItem.backgroundColor = { id: 'statusBarItem.errorBackground' };
+          } else if (percent >= 75) {
+            curStatusItem.backgroundColor = { id: 'statusBarItem.warningBackground' };
+          } else {
+            curStatusItem.backgroundColor = undefined;
+          }
+        }
+      }
+
       curStatusItem.show();
     });
   }
@@ -67,10 +89,12 @@ class StatsBar {
     if (module === 'cpuLoad') {
       const res = rawRes as Await<SysinfoData['cpuLoad']>;
       if (res) {
+        const percent = res.toFixed(0);
         const dict = {
-          percent: res.toFixed(0)
+          percent
         };
         formatedData.text = formatByDict(setting.cfg?.get(ConfigurationKeys.CpuLoadFormat), dict);
+        formatedData.tooltip = `CPU Load: ${percent}%`;
       }
     } else if (module === 'loadavg') {
       const res = rawRes as Await<SysinfoData['loadavg']>;
@@ -81,6 +105,7 @@ class StatsBar {
           '15': res[2]?.toFixed(2) || 0
         };
         formatedData.text = formatByDict(setting.cfg?.get(ConfigurationKeys.LoadavgFormat), dict);
+        formatedData.tooltip = `Load Average: 1m: ${dict['1']}, 5m: ${dict['5']}, 15m: ${dict['15']}`;
       }
     } else if (module === 'memoUsage') {
       const res = rawRes as Await<SysinfoData['memoUsage']>;
@@ -100,6 +125,9 @@ class StatsBar {
         };
 
         formatedData.text = formatByDict(setting.cfg?.get(ConfigurationKeys.MemoUsageFormat), dict);
+        formatedData.tooltip = `Memory: ${used.data}/${total.data} GB (${percent}%)${
+          isDarwin ? ` - Pressure: ${pressurePercent}%` : ''
+        }`;
       }
     } else if (module === 'networkSpeed') {
       const res = rawRes as Await<SysinfoData['networkSpeed']>;
@@ -115,6 +143,7 @@ class StatsBar {
         };
 
         formatedData.text = formatByDict(setting.cfg?.get(ConfigurationKeys.NetworkSpeedFormat), dict);
+        formatedData.tooltip = `Network: ↑${up.data} ${up.unit}/s ↓${down.data} ${down.unit}/s`;
       }
     } else if (module === 'uptime') {
       const res = rawRes as Await<SysinfoData['uptime']>;
@@ -128,6 +157,46 @@ class StatsBar {
         };
 
         formatedData.text = formatByDict(setting.cfg?.get(ConfigurationKeys.UptimeFormat), dict);
+        formatedData.tooltip = `System Uptime: ${data[0]}d ${data[1]}h ${data[2]}m`;
+      }
+    } else if (module === 'diskUsage') {
+      const res = rawRes as Await<SysinfoData['diskUsage']>;
+      if (res) {
+        const customSize = 1024 * 1024 * 1024;
+        const used = formatBytes(res.used, 2, customSize);
+        const total = formatBytes(res.size, 2, customSize);
+        const available = formatBytes(res.available, 2, customSize);
+        const percent = res.use.toFixed(0);
+
+        const dict = {
+          used: used.data,
+          total: total.data,
+          available: available.data,
+          unit: 'GB',
+          percent,
+          mount: res.mount
+        };
+
+        formatedData.text = formatByDict(setting.cfg?.get(ConfigurationKeys.DiskUsageFormat), dict);
+        formatedData.tooltip = `Disk (${res.mount}): ${used.data}/${total.data} GB (${percent}%) - Available: ${available.data} GB`;
+      }
+    } else if (module === 'battery') {
+      const res = rawRes as Await<SysinfoData['battery']>;
+      if (res && res.hasBattery) {
+        const percent = res.percent;
+        const isCharging = res.isCharging;
+        const timeRemaining = res.timeRemaining > 0 ? Math.floor(res.timeRemaining / 60) : 0;
+
+        const dict = {
+          percent: percent,
+          charging: isCharging ? 'Charging' : '',
+          time: timeRemaining
+        };
+
+        formatedData.text = formatByDict(setting.cfg?.get(ConfigurationKeys.BatteryFormat), dict);
+        formatedData.tooltip = `Battery: ${percent}%${isCharging ? ' (Charging)' : ''}${
+          timeRemaining > 0 ? ` - ${timeRemaining} min remaining` : ''
+        }`;
       }
     }
     return formatedData;

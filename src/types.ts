@@ -12,7 +12,11 @@ export enum Commands {
   'EnableMemoUsage' = 'StatsBar.EnableMemoUsage',
   'DisableMemoUsage' = 'StatsBar.DisableMemoUsage',
   'EnableUptime' = 'StatsBar.EnableUptime',
-  'DisableUptime' = 'StatsBar.DisableUptime'
+  'DisableUptime' = 'StatsBar.DisableUptime',
+  'EnableDiskUsage' = 'StatsBar.EnableDiskUsage',
+  'DisableDiskUsage' = 'StatsBar.DisableDiskUsage',
+  'EnableBattery' = 'StatsBar.EnableBattery',
+  'DisableBattery' = 'StatsBar.DisableBattery'
 }
 
 export enum ConfigurationKeys {
@@ -25,5 +29,7 @@ export enum ConfigurationKeys {
   LoadavgFormat = 'loadavg.format',
   NetworkSpeedFormat = 'networkSpeed.format',
   MemoUsageFormat = 'memoUsage.format',
-  UptimeFormat = 'uptime.format'
+  UptimeFormat = 'uptime.format',
+  DiskUsageFormat = 'diskUsage.format',
+  BatteryFormat = 'battery.format'
 }
